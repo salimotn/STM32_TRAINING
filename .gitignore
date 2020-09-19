@@ -1,11 +1,16 @@
 # Prerequisites
 *.d
+*.launch
+makefile
+*.list
+*.bin
 
 # Object files
 *.o
 *.ko
 *.obj
 *.elf
+*.mk
 
 # Linker output
 *.ilk
