@@ -49,6 +49,7 @@
 									<listOptionValue builtIn="false" value="../Drivers/bsp"/>
 									<listOptionValue builtIn="false" value="../Drivers/bsp/led"/>
 									<listOptionValue builtIn="false" value="../Drivers/bsp/button"/>
+									<listOptionValue builtIn="false" value="../Drivers/bsp/timer"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.2065969799" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
 							</tool>

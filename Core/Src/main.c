@@ -19,6 +19,7 @@
 #include "main.h"
 #include "bsp_led.h"
 #include "bsp_button.h"
+#include "bsp_timer.h"
 
 /* Private includes ----------------------------------------------------------*/
 
@@ -29,7 +30,7 @@
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
-
+uint32_t u32Counter;
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
@@ -50,6 +51,10 @@ int main(void)
   bsp_button_init();
   /* Initialize leds */
   bsp_leds_init();
+  /* Initialize timer */
+  bsp_timer_init();
+  /* Start timer */
+  bsp_timer_start();
   /* Infinite loop */
   while (1)
   {
@@ -195,5 +200,17 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     app_button_pressed_handler(&u16ButtonCounter);
   }
 }
+
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @param  htim : TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  u32Counter++;
+  bsp_led_toggle(BSP_LED_ID_1);
+}
+
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
