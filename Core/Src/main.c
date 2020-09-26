@@ -17,6 +17,8 @@
   */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "bsp_led.h"
+#include "bsp_button.h"
 
 /* Private includes ----------------------------------------------------------*/
 
@@ -29,8 +31,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
-
+static void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 
 /**
@@ -45,8 +46,10 @@ int main(void)
   HAL_Init();
   /* Configure the system clock */
   SystemClock_Config();
-
-  /* Initialize all configured peripherals */
+  /* Initialize button */
+  bsp_button_init();
+  /* Initialize leds */
+  bsp_leds_init();
   /* Infinite loop */
   while (1)
   {
@@ -57,7 +60,7 @@ int main(void)
   * @brief System Clock Configuration
   * @retval None
   */
-void SystemClock_Config(void)
+static void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
@@ -152,5 +155,45 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
+
+void app_button_pressed_handler(uint16_t * pu16count)
+{
+  bsp_led_ctrl(BSP_LED_ID_ALL, BSP_LED_STATE_LOW);
+  switch(*pu16count)
+  {
+  case 1:
+    bsp_led_ctrl(BSP_LED_ID_1, BSP_LED_STATE_HIGH);
+    break;
+  case 2:
+    bsp_led_ctrl(BSP_LED_ID_2, BSP_LED_STATE_HIGH);
+    break;
+  case 3:
+    bsp_led_ctrl(BSP_LED_ID_3, BSP_LED_STATE_HIGH);
+    break;
+  case 4:
+    bsp_led_ctrl(BSP_LED_ID_ALL, BSP_LED_STATE_HIGH);
+    *pu16count = 0;
+    break;
+  default:
+    break;
+  }
+}
+
+/**
+  * @brief  EXTI line detection callback.
+  * @param  GPIO_Pin Specifies the port pin connected to corresponding EXTI line.
+  * @retval None
+  */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  static uint16_t u16ButtonCounter;
+
+  if(GPIO_Pin == BSP_BUTTON_PIN)
+  {
+    /* Button pressed */
+    u16ButtonCounter++;
+    app_button_pressed_handler(&u16ButtonCounter);
+  }
+}
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
