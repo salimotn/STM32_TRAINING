@@ -36,17 +36,20 @@
 /* Includes                                                                                      */
 /*-----------------------------------------------------------------------------------------------*/
 #include "bsp_uart.h"
+#include <string.h>
 
 #define BSP_UART_ENABLED
 #ifdef BSP_UART_ENABLED
- 
+
 /*-----------------------------------------------------------------------------------------------*/
 /* Defines                                                                                       */
 /*-----------------------------------------------------------------------------------------------*/
 /** @defgroup uart_private_defines Private defines
   * @{
   */
-
+#define BSP_UART_INSTANCE                        UART4
+#define BSP_UART_BAUDRATE                        (115200)
+#define BSP_UART_RX_SIZE                         (256)
 /**
   * @}
   */
@@ -67,7 +70,10 @@
 /** @defgroup uart_private_variables Private variables
   * @{
   */
-
+/* Uart instance */
+UART_HandleTypeDef stUartInstance;
+uint8_t u08RxByte;
+uint8_t u08RxBuffer[BSP_UART_RX_SIZE];
 /**
   * @}
   */
@@ -79,6 +85,41 @@
   * @{
   */
 
+void UART4_IRQHandler(void)
+{
+  HAL_UART_IRQHandler(&stUartInstance);
+}
+
+/**
+  * @brief Tx Transfer completed callback.
+  * @param huart UART handle.
+  * @retval None
+  */
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
+  if(huart->Instance == BSP_UART_INSTANCE)
+  {
+  }
+}
+
+/**
+  * @brief  Rx Transfer completed callback.
+  * @param  huart UART handle.
+  * @retval None
+  */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  static uint8_t u08Indx;
+  if(huart->Instance == BSP_UART_INSTANCE)
+  {
+    u08RxBuffer[u08Indx++] = u08RxByte;
+    if(u08Indx >= BSP_UART_RX_SIZE)
+    {
+      u08Indx = 0;
+    }
+    HAL_UART_Receive_IT(&stUartInstance, &u08RxByte, 1);
+  }
+}
 /**
   * @}
   */
@@ -97,6 +138,21 @@
   ********************************************************************************************** */
 void bsp_uart_init(void)
 {
+  /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+  stUartInstance.Instance = BSP_UART_INSTANCE;
+  stUartInstance.Init.BaudRate = BSP_UART_BAUDRATE;
+  stUartInstance.Init.WordLength = UART_WORDLENGTH_8B;
+  stUartInstance.Init.StopBits = UART_STOPBITS_1;
+  stUartInstance.Init.Parity = UART_PARITY_NONE;
+  stUartInstance.Init.Mode = UART_MODE_TX_RX;
+  stUartInstance.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  stUartInstance.Init.OverSampling = UART_OVERSAMPLING_16;
+  stUartInstance.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  stUartInstance.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  HAL_UART_Init(&stUartInstance);
+  /* Set Uart state to RX busy */
+  HAL_UART_Receive_IT(&stUartInstance, &u08RxByte, 1);
 }
 
 /** ***********************************************************************************************
@@ -107,6 +163,38 @@ void bsp_uart_init(void)
 void bsp_uart_exit(void)
 {
 }
+
+/** ***********************************************************************************************
+  * @brief      Transmit data in uart interrupt mode
+  * @date       July 2020
+  * @param      pData pointer on data to send
+  * @param      u16Len number of bytes to send
+  * @return     Return nothing
+  ********************************************************************************************** */
+void bsp_uart_transmit(uint8_t *pData, uint16_t u16Len)
+{
+  if(pData && u16Len)
+  {
+    HAL_UART_Transmit_IT(&stUartInstance, pData, sizeof("hello world")-1 );
+  }
+}
+
+
+/** ***********************************************************************************************
+  * @brief      Recieve data in uart interrupt mode
+  * @date       July 2020
+  * @param      pData pointer to destination buffer
+  * @param      u16Len number of bytes to read
+  * @return     Return nothing
+  ********************************************************************************************** */
+void bsp_uart_received(uint8_t *pData, uint16_t u16Len)
+{
+  if(pData && u16Len)
+  {
+    memcpy(pData, u08RxBuffer, u16Len);
+  }
+}
+
 /**
   * @}
   */
