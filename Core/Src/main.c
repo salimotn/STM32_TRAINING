@@ -26,13 +26,20 @@
 /* Private typedef -----------------------------------------------------------*/
 
 /* Private define ------------------------------------------------------------*/
-
+#define BSP_UART_RX_SIZE 10
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
 uint32_t u32Counter;
+uint8_t u08RxByte;
+uint8_t u08RxBuffer[BSP_UART_RX_SIZE];
+
+/* Uart instance */
+UART_HandleTypeDef huart4;
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
+static void MX_GPIO_Init(void);
+static void MX_UART4_Init(void);
 /* Private user code ---------------------------------------------------------*/
 
 /**
@@ -55,6 +62,13 @@ int main(void)
   bsp_timer_init();
   /* Start timer */
   bsp_timer_start();
+  /* Initialize uart */
+  MX_GPIO_Init();
+  MX_UART4_Init();
+  /* Transmit data in uart interrupt mode */
+  HAL_UART_Transmit_IT(&huart4, "hello world", sizeof("hello world")-1 );
+  /* Receive data in uart interrupt mode */
+  HAL_UART_Receive_IT(&huart4, &u08RxByte, 1);
   /* Infinite loop */
   while (1)
   {
@@ -130,6 +144,10 @@ static void SystemClock_Config(void)
   /** Enable MSI Auto calibration
   */
   HAL_RCCEx_EnableMSIPLLMode();
+  /** Configure Uart4 source clock PCLK1 */
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_UART4;
+  PeriphClkInit.Uart4ClockSelection = RCC_UART4CLKSOURCE_PCLK1;
+  HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit);
 }
 
 /**
@@ -210,6 +228,82 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   u32Counter++;
   bsp_led_toggle(BSP_LED_ID_1);
+}
+
+/**
+  * @brief GPIO Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_GPIO_Init(void)
+{
+
+  /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+
+}
+
+/**
+  * @brief UART4 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_UART4_Init(void)
+{
+
+  /* USER CODE BEGIN UART4_Init 0 */
+
+  /* USER CODE END UART4_Init 0 */
+
+  /* USER CODE BEGIN UART4_Init 1 */
+
+  /* USER CODE END UART4_Init 1 */
+  huart4.Instance = UART4;
+  huart4.Init.BaudRate = 115200;
+  huart4.Init.WordLength = UART_WORDLENGTH_8B;
+  huart4.Init.StopBits = UART_STOPBITS_1;
+  huart4.Init.Parity = UART_PARITY_NONE;
+  huart4.Init.Mode = UART_MODE_TX_RX;
+  huart4.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart4.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart4.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart4.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN UART4_Init 2 */
+
+  /* USER CODE END UART4_Init 2 */
+
+}
+
+/**
+  * @brief Tx Transfer completed callback.
+  * @param huart UART handle.
+  * @retval None
+  */
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
+  int c;
+  c++;
+}
+
+/**
+  * @brief  Rx Transfer completed callback.
+  * @param  huart UART handle.
+  * @retval None
+  */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  static uint8_t u08Indx;
+
+  u08RxBuffer[u08Indx++] = u08RxByte;
+  if(u08Indx >= BSP_UART_RX_SIZE)
+  {
+    u08Indx = 0;
+  }
+  HAL_UART_Receive_IT(&huart4, &u08RxByte, 1);
 }
 
 
