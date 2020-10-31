@@ -21,6 +21,7 @@
 #include "bsp_button.h"
 #include "bsp_timer.h"
 #include "bsp_uart.h"
+#include "bsp_gprs.h"
 
 /* Private includes ----------------------------------------------------------*/
 
@@ -58,6 +59,8 @@ int main(void)
   bsp_uart_init();
   /* Start timer */
   bsp_timer_start();
+  /* Enable Gprs */
+  bsp_gprs_enable();
   /* Infinite loop */
   while (1)
   {
