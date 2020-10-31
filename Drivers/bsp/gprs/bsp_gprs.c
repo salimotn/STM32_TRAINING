@@ -79,13 +79,21 @@ typedef struct
   */
 static const bps_gprs_atcmd_t tstEnableAtCmds[] =
 {
+  /* Start AT SYNC: Send AT every 500ms, if receive OK (Handshaking) */
   {"AT\r"                            , BSP_GPRS_CMD_DELAY},
+  /* Set Echo mode off */
   {"ATE0\r"                          , BSP_GPRS_CMD_DELAY},
+  /* Select a Context as Foreground Context,Expected to have id=0,channel=0 */
   {"AT+QIFGCNT=0\r"                  , BSP_GPRS_CMD_DELAY},
+  /* Configure Domain Name Server */
   {"AT+QIDNSCFG?\r"                  , BSP_GPRS_CMD_DELAY},
+  /* Select CSD or GPRS as the Bearer ( APN )*/
   {"AT+QICSGP=1,\"PESTPULSE.LPWA\"\r", BSP_GPRS_CMD_DELAY},
+  /* Start TCP/IP stack */
   {"AT+QIREGAPP=\"PESTPULSE.LPWA\"\r", BSP_GPRS_CMD_DELAY},
+  /* Disactivate PDP context */
   {"AT+QIDEACT\n"                    , BSP_GPRS_CMD_DELAY},
+  /* Get Network status */
   {"AT+CREG?\n"                      , BSP_GPRS_CMD_DELAY},
   /* Set all Current Parameters to User Defined Profile */
   {"ATZ\r"                           , BSP_GPRS_CMD_DELAY},
