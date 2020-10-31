@@ -38,6 +38,7 @@
 #include "bsp_gprs.h"
 #include "bsp_uart.h"
 #include <string.h>
+#include <stdio.h>
 
 #define BSP_GPRS_ENABLED
 #ifdef BSP_GPRS_ENABLED
@@ -49,7 +50,8 @@
   * @{
   */
 #define BSP_GPRS_ENABLE_ATCMD_LEN               (sizeof(tstEnableAtCmds) / sizeof(bps_gprs_atcmd_t))
-#define BSP_GPRS_CMD_DELAY                      (3000)
+#define BSP_GPRS_CMD_DELAY                      (1000)
+#define BSP_GPRS_URL_MAX                        (100)
 /**
   * @}
   */
@@ -79,15 +81,16 @@ static const bps_gprs_atcmd_t tstEnableAtCmds[] =
 {
   {"AT\r"                            , BSP_GPRS_CMD_DELAY},
   {"ATE0\r"                          , BSP_GPRS_CMD_DELAY},
-  {"AT+QIFGCNT=0\r\n"                  , BSP_GPRS_CMD_DELAY},
-  {"AT+QIDNSCFG?\r\n"                  , BSP_GPRS_CMD_DELAY},
-  {"AT+QICSGP=1,\"PESTPULSE.LPWA\"\r\n", BSP_GPRS_CMD_DELAY},
-  {"AT+QIREGAPP=\"PESTPULSE.LPWA\"\r\n", BSP_GPRS_CMD_DELAY},
-  {"AT+QIDEACT\r\n"                    , BSP_GPRS_CMD_DELAY},
-  {"AT+CREG?\r\n"                      , BSP_GPRS_CMD_DELAY},
+  {"AT+QIFGCNT=0\r"                  , BSP_GPRS_CMD_DELAY},
+  {"AT+QIDNSCFG?\r"                  , BSP_GPRS_CMD_DELAY},
+  {"AT+QICSGP=1,\"PESTPULSE.LPWA\"\r", BSP_GPRS_CMD_DELAY},
+  {"AT+QIREGAPP=\"PESTPULSE.LPWA\"\r", BSP_GPRS_CMD_DELAY},
+  {"AT+QIDEACT\n"                    , BSP_GPRS_CMD_DELAY},
+  {"AT+CREG?\n"                      , BSP_GPRS_CMD_DELAY},
   /* Set all Current Parameters to User Defined Profile */
-  {"ATZ\r\n"                           , BSP_GPRS_CMD_DELAY},
+  {"ATZ\r"                           , BSP_GPRS_CMD_DELAY},
 };
+
 /**
   * @}
   */
@@ -98,10 +101,10 @@ static const bps_gprs_atcmd_t tstEnableAtCmds[] =
 /** @defgroup gprs_private_functions Private functions
   * @{
   */
-
 /** ***********************************************************************************************
   * @brief      Send AT command
   * @param      pAtCmd pointer to at command as defined in ::bps_gprs_atcmd_t
+  * @param      u32TimeoutMs delay counter in milliseconds
   * @date       July 2020
   * @return     returns nothing
   ********************************************************************************************** */
@@ -128,12 +131,22 @@ void _bsp_gprs_send_atcmd(const char * pAtCmd, uint32_t u32TimeoutMs)
 /** @defgroup gprs_exported_functions Exported functions
   * @{
   */
+/** ***********************************************************************************************
+  * @brief      Init modem driver
+  * @date       July 2020
+  * @return     returns nothing
+  ********************************************************************************************** */
 void bsp_gprs_init(void)
 {
   /* Initialization of serial interface */
   /* => already checked */
 }
 
+/** ***********************************************************************************************
+  * @brief      Enable modem driver
+  * @date       July 2020
+  * @return     returns nothing
+  ********************************************************************************************** */
 void bsp_gprs_enable(void)
 {
   bps_gprs_atcmd_t *pAtCmd;
@@ -146,6 +159,92 @@ void bsp_gprs_enable(void)
   }
 }
 
+/** ***********************************************************************************************
+  * @brief      Connect to network
+  * @date       July 2020
+  * @param      pcUrl URL to connect
+  * @note       Input URL, you must begin with “http://” or “https://”. If the URL begins with
+  *             “http://”, it indicates you willaccess a HTTP server.
+  *             If the URL begins with “https://”, it indicates you will access a HTTPS server.
+  * @return     returns nothing
+  ********************************************************************************************** */
+void bsp_gprs_connect(char *pcUrl)
+{
+  uint16_t u16UrlLen;
+  uint8_t u08CmdLen;
+  char u08AtCmd[BSP_GPRS_URL_MAX];
+  uint16_t u16ReplyLen;
+
+  if(pcUrl)
+  {
+    /* 1- Format QHTTPURL command */
+    u16UrlLen = strlen(pcUrl);
+    u08CmdLen = snprintf(u08AtCmd, BSP_GPRS_URL_MAX, "AT+QHTTPURL=%d\r", u16UrlLen);
+    /* 2- send QHTTPURL command */
+    bsp_uart_transmit((uint8_t*)u08AtCmd, (uint16_t)u08CmdLen);
+    HAL_Delay(BSP_GPRS_CMD_DELAY);
+    u16ReplyLen = bsp_uart_reset_indexes();
+    /* 3- Send Url to connet */
+    bsp_uart_transmit((uint8_t*)pcUrl, u16UrlLen);
+    HAL_Delay(BSP_GPRS_CMD_DELAY);
+    u16ReplyLen = bsp_uart_reset_indexes();
+  }
+}
+
+/** ***********************************************************************************************
+  * @brief      Send data through modem driver
+  * @date       July 2020
+  * @param      pu08Data pointer to data to send
+  * @param      u16DataLen data length to send
+  * @return     returns nothing
+  ********************************************************************************************** */
+void bsp_gprs_send(uint8_t *pu08Data, uint16_t u16DataLen)
+{
+  uint8_t u08CmdLen;
+  char u08AtCmd[BSP_GPRS_URL_MAX];
+  uint16_t u16ReplyLen;
+
+  if(pu08Data && u16DataLen)
+  {
+    /* 1- Format QHTTPPOST command */
+    u08CmdLen = snprintf(u08AtCmd, BSP_GPRS_URL_MAX, "AT+QHTTPPOST=%d\r", u16DataLen);
+    /* 2- send QHTTPURL command */
+    bsp_uart_transmit((uint8_t*)u08AtCmd, (uint16_t)u08CmdLen);
+    HAL_Delay(BSP_GPRS_CMD_DELAY);
+    u16ReplyLen = bsp_uart_reset_indexes();
+    /* 3- Send Url to connet */
+    bsp_uart_transmit((uint8_t*)pu08Data, u16DataLen);
+    HAL_Delay(BSP_GPRS_CMD_DELAY);
+    u16ReplyLen = bsp_uart_reset_indexes();
+  }
+}
+
+
+/** ***********************************************************************************************
+  * @brief      Disconnect from network
+  * @date       July 2020
+  * @return     returns nothing
+  ********************************************************************************************** */
+void bsp_gprs_disconnect(void)
+{
+}
+
+
+
+/** ***********************************************************************************************
+  * @brief      receive data through modem driver
+  * @date       July 2020
+  * @return     returns nothing
+  ********************************************************************************************** */
+void bsp_gprs_receive(void)
+{
+}
+
+/** ***********************************************************************************************
+  * @brief      Exit modem driver
+  * @date       July 2020
+  * @return     returns nothing
+  ********************************************************************************************** */
 void bsp_gprs_exit(void)
 {
 }

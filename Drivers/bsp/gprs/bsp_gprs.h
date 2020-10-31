@@ -67,6 +67,10 @@
 void bsp_gprs_init(void);
 void bsp_gprs_enable(void);
 void bsp_gprs_exit(void);
+void bsp_gprs_connect(char *pcUrl);
+void bsp_gprs_disconnect(void);
+void bsp_gprs_send(uint8_t *pu08Data, uint16_t u16DataLen);
+void bsp_gprs_receive(void);
 #endif /* _BSP_GPRS_H_ */
 
 /**

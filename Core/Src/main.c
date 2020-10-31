@@ -28,7 +28,9 @@
 /* Private typedef -----------------------------------------------------------*/
 
 /* Private define ------------------------------------------------------------*/
-
+#define APP_URL         "http://iot.pestpulse.com/api/device_messages"
+#define APP_DATA        "04011803030003FF,DEV_SALEM_TEST"
+#define APP_DATA_SIZE   sizeof(APP_DATA)-1
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
@@ -61,6 +63,10 @@ int main(void)
   bsp_timer_start();
   /* Enable Gprs */
   bsp_gprs_enable();
+  /* Connect to Url */
+  bsp_gprs_connect(APP_URL);
+  /* Send data through GPRS */
+  bsp_gprs_send(APP_DATA, APP_DATA_SIZE);
   /* Infinite loop */
   while (1)
   {
