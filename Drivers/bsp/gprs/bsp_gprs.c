@@ -49,7 +49,7 @@
   * @{
   */
 #define BSP_GPRS_ENABLE_ATCMD_LEN               (sizeof(tstEnableAtCmds) / sizeof(bps_gprs_atcmd_t))
-#define BSP_GPRS_CMD_DELAY                      (1000)
+#define BSP_GPRS_CMD_DELAY                      (3000)
 /**
   * @}
   */
@@ -77,15 +77,16 @@ typedef struct
   */
 static const bps_gprs_atcmd_t tstEnableAtCmds[] =
 {
-  {"AT1", BSP_GPRS_CMD_DELAY},
-  {"AT2", BSP_GPRS_CMD_DELAY},
-  {"AT3", BSP_GPRS_CMD_DELAY},
-  {"AT4", BSP_GPRS_CMD_DELAY},
-  {"AT5", BSP_GPRS_CMD_DELAY},
-  {"AT6", BSP_GPRS_CMD_DELAY},
-  {"AT7", BSP_GPRS_CMD_DELAY},
-  {"AT8", BSP_GPRS_CMD_DELAY},
-  {"AT8", BSP_GPRS_CMD_DELAY},
+  {"AT\r"                            , BSP_GPRS_CMD_DELAY},
+  {"ATE0\r"                          , BSP_GPRS_CMD_DELAY},
+  {"AT+QIFGCNT=0\r\n"                  , BSP_GPRS_CMD_DELAY},
+  {"AT+QIDNSCFG?\r\n"                  , BSP_GPRS_CMD_DELAY},
+  {"AT+QICSGP=1,\"PESTPULSE.LPWA\"\r\n", BSP_GPRS_CMD_DELAY},
+  {"AT+QIREGAPP=\"PESTPULSE.LPWA\"\r\n", BSP_GPRS_CMD_DELAY},
+  {"AT+QIDEACT\r\n"                    , BSP_GPRS_CMD_DELAY},
+  {"AT+CREG?\r\n"                      , BSP_GPRS_CMD_DELAY},
+  /* Set all Current Parameters to User Defined Profile */
+  {"ATZ\r\n"                           , BSP_GPRS_CMD_DELAY},
 };
 /**
   * @}
@@ -107,12 +108,14 @@ static const bps_gprs_atcmd_t tstEnableAtCmds[] =
 void _bsp_gprs_send_atcmd(const char * pAtCmd, uint32_t u32TimeoutMs)
 {
   uint16_t u16CmdLen;
+  uint16_t u16ReplyLen;
 
   if(pAtCmd)
   {
     u16CmdLen = strlen(pAtCmd);
     bsp_uart_transmit((uint8_t*)pAtCmd, u16CmdLen);
     HAL_Delay(u32TimeoutMs);
+    u16ReplyLen = bsp_uart_reset_indexes();
   }
 }
 /**

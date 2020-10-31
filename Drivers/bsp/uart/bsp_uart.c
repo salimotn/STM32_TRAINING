@@ -60,6 +60,7 @@
 /** @defgroup uart_private_types Private types
   * @{
   */
+uint8_t u08Indx;
 /**
   * @}
   */
@@ -109,7 +110,6 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
   */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-  static uint8_t u08Indx;
   if(huart->Instance == BSP_UART_INSTANCE)
   {
     u08RxBuffer[u08Indx++] = u08RxByte;
@@ -175,7 +175,7 @@ void bsp_uart_transmit(uint8_t *pData, uint16_t u16Len)
 {
   if(pData && u16Len)
   {
-    HAL_UART_Transmit_IT(&stUartInstance, pData, sizeof("hello world")-1 );
+    HAL_UART_Transmit_IT(&stUartInstance, pData, u16Len );
   }
 }
 
@@ -193,6 +193,22 @@ void bsp_uart_received(uint8_t *pData, uint16_t u16Len)
   {
     memcpy(pData, u08RxBuffer, u16Len);
   }
+}
+
+/** ***********************************************************************************************
+  * @brief      Recieve data in uart interrupt mode
+  * @date       July 2020
+  * @param      pData pointer to destination buffer
+  * @param      u16Len number of bytes to read
+  * @return     Return nothing
+  ********************************************************************************************** */
+uint32_t bsp_uart_reset_indexes(void)
+{
+  uint32_t u32temp;
+
+  u32temp = u08Indx;
+  u08Indx = 0;
+  return u32temp;
 }
 
 /**

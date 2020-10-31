@@ -71,7 +71,7 @@ void bsp_uart_init(void);
 void bsp_uart_exit(void);
 void bsp_uart_transmit(uint8_t *pData, uint16_t u16Len);
 void bsp_uart_received(uint8_t *pData, uint16_t u16Len);
-
+uint32_t bsp_uart_reset_indexes(void);
 #endif /* _BSP_UART_H_ */
 
 /**
