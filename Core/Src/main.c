@@ -22,6 +22,8 @@
 #include "bsp_timer.h"
 #include "bsp_uart.h"
 #include "bsp_gprs.h"
+#include "bsp_i2c.h"
+#include <stdio.h>
 
 /* Private includes ----------------------------------------------------------*/
 
@@ -41,7 +43,7 @@ typedef struct
 #define APP_URL         "http://iot.pestpulse.com/api/device_messages"
 #define APP_DATA        "04011803030003FF,DEV_SALEM_TEST"
 #define APP_DATA_SIZE   sizeof(APP_DATA)-1
-#define DEVICE "DEV_SALEM_TEST"
+#define DEVICE          "DEV_SALEM_TEST"
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
@@ -80,20 +82,22 @@ int main(void)
   bsp_uart_init();
   /* Start timer */
   bsp_timer_start();
+  /* Init Ic2 driver */
+  bsp_i2c_init();
   /* Enable Gprs */
-  bsp_gprs_enable();
+  // bsp_gprs_enable();
   /* Connect to Url */
-  bsp_gprs_connect(APP_URL);
+  // bsp_gprs_connect(APP_URL);
   /* Send data through GPRS */
-  stMyData.u08Hv          = 04;
-  stMyData.u08Fv          = 01;
-  stMyData.u08DutyCycle   = 18;
-  stMyData.u08PayloadType = 03;
-  stMyData.u08ErrFlag     = 03;
-  stMyData.u08MsgType     = 00;
-  stMyData.u16MsgBuffer   = 0x03FF;
-  mw_data_format(&stMyData, (uint8_t*)DEVICE, t08ucmd, &CmdLen);
-  bsp_gprs_send(t08ucmd, CmdLen);
+  // stMyData.u08Hv          = 04;
+  // stMyData.u08Fv          = 01;
+  // stMyData.u08DutyCycle   = 18;
+  // stMyData.u08PayloadType = 03;
+  // stMyData.u08ErrFlag     = 03;
+  // stMyData.u08MsgType     = 00;
+  // stMyData.u16MsgBuffer   = 0x03FF;
+  // mw_data_format(&stMyData, (uint8_t*)DEVICE, t08ucmd, &CmdLen);
+  // bsp_gprs_send(t08ucmd, CmdLen);
   /* Infinite loop */
   while (1)
   {
@@ -236,12 +240,10 @@ void mw_data_format(mw_data_t *pstData,
                     uint8_t *pu08Dest,
                     uint8_t *pu08CmdLen)
 {
-  uint8_t t08ucmd[40];
   uint8_t u08Len;
-
-  if(pstData && pu08DeviceName && pu08Dest, pu08CmdLen)
+  if(pstData && pu08DeviceName && pu08Dest && pu08CmdLen)
   {
-    u08Len = snprintf(pu08Dest,
+    u08Len = snprintf((char*)pu08Dest,
                       40,
                       "%02d%02d%02d%02d%02d%02d%02X%02X,%s",
                       pstData->u08Hv,
@@ -250,8 +252,8 @@ void mw_data_format(mw_data_t *pstData,
                       pstData->u08PayloadType,
                       pstData->u08ErrFlag,
                       pstData->u08MsgType,
-                      (pstData->u16MsgBuffer & 0xFF),
-                      ((pstData->u16MsgBuffer >> 8)& 0xFF),
+                      ((pstData->u16MsgBuffer >> 8)& 0xFF), /* Extract MSB */
+                      (pstData->u16MsgBuffer & 0xFF),       /* Extract LSB */
                       pu08DeviceName);
     *pu08CmdLen = u08Len;
   }

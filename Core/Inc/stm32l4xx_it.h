@@ -27,24 +27,12 @@
 #endif
 
 /* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-
-/* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
-/* USER CODE BEGIN ET */
-
-/* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
-/* USER CODE BEGIN EC */
-
-/* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
-/* USER CODE BEGIN EM */
-
-/* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
 void NMI_Handler(void);
@@ -59,9 +47,8 @@ void SysTick_Handler(void);
 void EXTI15_10_IRQHandler(void);
 void TIM2_IRQHandler(void);
 void UART4_IRQHandler(void);
-/* USER CODE BEGIN EFP */
-
-/* USER CODE END EFP */
+void I2C3_EV_IRQHandler(void);
+void I2C3_ER_IRQHandler(void);
 
 #ifdef __cplusplus
 }
