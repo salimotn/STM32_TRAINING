@@ -59,7 +59,7 @@
 #define DEVICE_ID_CMD         0xFA  /**<     */
 #define PS_AC_DATA_CMD        0xFB  /**<     */
 #define DEVICE_ID_VALUE       0x26
-
+#define PS_INIT_MASK          0xFF7F
 /**
   * @}
   */
@@ -109,6 +109,19 @@ static uint16_t _bsp_vcnl3682_read_reg(uint8_t u08Cmd)
   return (u08ReadData[0] | (u08ReadData[1] << 8));
 }
 
+static void _bsp_vcnl3682_ctrl_bias_circuit(uint8_t u08Ctrl)
+{
+  uint16_t u16RegVal;
+
+  u08Ctrl = (0!= u08Ctrl)?1:0;
+  /* 1. Get Conf1 register content */
+  u16RegVal = _bsp_vcnl3682_read_reg(PS_CONF1_CMD);
+  /* 2 Modify Conf1 register content */
+  u16RegVal = u16RegVal & 0xFFFD;
+  u16RegVal = u16RegVal | (u08Ctrl << 1);
+  /* 3. Set Conf1 register content */
+  _bsp_vcnl3682_write_reg(PS_CONF1_CMD, u16RegVal);
+}
 
 /**
   * @}
@@ -120,6 +133,19 @@ static uint16_t _bsp_vcnl3682_read_reg(uint8_t u08Cmd)
 /** @defgroup vcnl3682 Exported functions
   * @{
   */
+void bsp_vcnl3682_set_default_cfg(void)
+{
+   /* PS_CONF1_LOW = 0x01 , PS_CONF1_HIGH = 0x00 */
+  _bsp_vcnl3682_write_reg(PS_CONF1_CMD, 0x01);
+   /* PS_CONF2_LOW = 0x01 , PS_CONF2_HIGH = 0x00 */
+  _bsp_vcnl3682_write_reg(PS_CONF2_CMD, 0x00);
+   /* PS_CONF3_LOW = 0x01 , PS_CONF3_HIGH = 0x00 */
+  _bsp_vcnl3682_write_reg(PS_CONF3_CMD, 0x00);
+  _bsp_vcnl3682_write_reg(PS_THDL_CMD, 0x00);
+  _bsp_vcnl3682_write_reg(PS_THDH_CMD, 0x00);
+  _bsp_vcnl3682_write_reg(PS_CANC_CMD, 0x00);
+  _bsp_vcnl3682_write_reg(PS_AC_CMD, 0x00);
+}
 
 /** ***********************************************************************************************
   * @brief      vcnl3682 initialization
@@ -128,6 +154,16 @@ static uint16_t _bsp_vcnl3682_read_reg(uint8_t u08Cmd)
   ********************************************************************************************** */
 void bsp_vcnl3682_init(void)
 {
+  uint16_t u16RegVal;
+
+  bsp_vcnl3682_set_default_cfg();
+  /* 1. Set PS_ON = 1 */
+  _bsp_vcnl3682_ctrl_bias_circuit(1);
+  /* 1. Set PS_INIT = 1 */
+  u16RegVal = _bsp_vcnl3682_read_reg(PS_CONF1_CMD);
+  u16RegVal = u16RegVal & PS_INIT_MASK;
+  u16RegVal = u16RegVal | (0x01 << 7);
+  _bsp_vcnl3682_write_reg(PS_CONF1_CMD, u16RegVal);
 }
 
 /** ***********************************************************************************************
@@ -147,6 +183,19 @@ void bsp_vcnl3682_exit(void)
 uint8_t bsp_vcnl3682_check_id(void)
 {
   return (DEVICE_ID_VALUE == _bsp_vcnl3682_read_reg(DEVICE_ID_CMD))?1:0;
+}
+
+/** ***********************************************************************************************
+  * @brief      vcnl3682 read data
+  * @date       July 2020
+  * @return     Return nothing
+  ********************************************************************************************** */
+void bsp_vcnl3682_read(uint16_t *pu16Val)
+{
+  if(pu16Val)
+  {
+    *pu16Val = _bsp_vcnl3682_read_reg(PS_DATA_CMD);
+  }
 }
 /**
   * @}
