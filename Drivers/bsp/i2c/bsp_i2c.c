@@ -166,11 +166,11 @@ void bsp_i2c_read(uint16_t u16DevAddr, uint8_t *pu08Data, uint16_t u16Len)
   * @param      u16Len Amount of data to be received
   * @return     Return nothing
   ********************************************************************************************** */
-void bsp_i2c_write_to_mem(uint16_t u16DevAddr,
-                          uint16_t u16MemAddr,
-                          uint16_t u16MemAddrSize,
-                          uint8_t *pu08Data,
-                          uint16_t u16Len)
+  void bsp_i2c_write_to_mem(uint16_t u16DevAddr,
+                            uint16_t u16MemAddr,
+                            uint16_t u16MemAddrSize,
+                            uint8_t *pu08Data,
+                            uint16_t u16Len)
 {
   if(u16MemAddrSize && pu08Data && u16Len)
   {
@@ -203,8 +203,7 @@ void bsp_i2c_read_mem(uint16_t u16DevAddr,
 /**
   * @}
   */
-
-#endif /* BSP_i2c_ENABi2c */
+#endif /* BSP_I2C_ENABLED */
 
 /**
   * @}

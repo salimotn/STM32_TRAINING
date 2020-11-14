@@ -1,9 +1,9 @@
 /**
  *************************************************************************************************
  *
- * @file      : bsp_i2c.h
+ * @file      : bsp_vcnl3682.h
  * @date      : September 2020
- * @brief     : i2c driver header file
+ * @brief     : vcnl3682 driver header file
  * @board     : {STM32l476RG}
  * @compiler  : {CubeIDE}
  * @attention
@@ -14,14 +14,14 @@
  **************************************************************************************************
  */
 
-/** @defgroup i2c i2c
-  * @brief i2c driver.
+/** @defgroup vcnl3682 vcnl3682
+  * @brief vcnl3682 driver.
   * @ingroup bsp
   * @{
   */
 
-#ifndef _BSP_I2C_H_
-#define _BSP_I2C_H_
+#ifndef _BSP_VCNL3682_H_
+#define _BSP_VCNL3682_H_
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Includes                                                                                      */
@@ -31,10 +31,10 @@
 /*-----------------------------------------------------------------------------------------------*/
 /* Exported defines                                                                              */
 /*-----------------------------------------------------------------------------------------------*/
-/** @defgroup exported Exported defines
+/** @defgroup vcnl3682_exported_defines Exported defines
   * @{
   */
-// Exported defines here
+
  /**
   * @}
   */
@@ -42,7 +42,7 @@
 /*-----------------------------------------------------------------------------------------------*/
 /* Exported types                                                                                */
 /*-----------------------------------------------------------------------------------------------*/
-/** @defgroup exported Exported types
+/** @defgroup vcnl3682 exported_types Exported types
   * @{
   */
 /**
@@ -52,7 +52,7 @@
 /*-----------------------------------------------------------------------------------------------*/
 /* Macros                                                                                        */
 /*-----------------------------------------------------------------------------------------------*/
-/** @defgroup gpio_exported_macros Exported macros
+/** @defgroup vcnl3682_exported_macros Exported macros
   * @{
   *
   */
@@ -62,21 +62,10 @@
 /*-----------------------------------------------------------------------------------------------*/
 /* Functions                                                                                     */
 /*-----------------------------------------------------------------------------------------------*/
-void bsp_i2c_init(void);
-void bsp_i2c_exit(void);
-void bsp_i2c_write(uint16_t u16DevAddr, uint8_t *pu08Data, uint16_t u16Len);
-void bsp_i2c_read(uint16_t u16DevAddr, uint8_t *pu08Data, uint16_t u16Len);
-void bsp_i2c_write_to_mem(uint16_t u16DevAddr,
-                          uint16_t u16MemAddr,
-                          uint16_t u16MemAddrSize,
-                          uint8_t *pu08Data,
-                          uint16_t u16Len);
-void bsp_i2c_read_mem(uint16_t u16DevAddr,
-                          uint16_t u16MemAddr,
-                          uint16_t u16MemAddrSize,
-                          uint8_t *pu08Data,
-                          uint16_t u16Len);
-#endif /* _BSP_I2C_H_ */
+void bsp_vcnl3682_init(void);
+void bsp_vcnl3682_exit(void);
+uint8_t bsp_vcnl3682_check_id(void);
+#endif /* _BSP_VCNL3682_H_ */
 /**
   * @}
   */

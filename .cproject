@@ -53,6 +53,7 @@
 									<listOptionValue builtIn="false" value="../Drivers/bsp/timer"/>
 									<listOptionValue builtIn="false" value="../Drivers/bsp/gprs"/>
 									<listOptionValue builtIn="false" value="../Drivers/bsp/i2c"/>
+									<listOptionValue builtIn="false" value="../Drivers/bsp/Proximity_Sensor"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.2065969799" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
 							</tool>
