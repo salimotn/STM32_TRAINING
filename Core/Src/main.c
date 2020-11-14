@@ -55,6 +55,7 @@ mw_data_t stMyData;
 uint8_t t08ucmd[40];
 uint8_t CmdLen;
 uint8_t result;
+uint16_t u16Measurement;
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
@@ -108,6 +109,8 @@ int main(void)
   /* Infinite loop */
   while (1)
   {
+    bsp_vcnl3682_read(&u16Measurement);
+    HAL_Delay(1000);
   }
 }
 

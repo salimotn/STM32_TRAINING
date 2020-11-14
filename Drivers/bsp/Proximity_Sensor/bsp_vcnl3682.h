@@ -65,6 +65,8 @@
 void bsp_vcnl3682_init(void);
 void bsp_vcnl3682_exit(void);
 uint8_t bsp_vcnl3682_check_id(void);
+void bsp_vcnl3682_set_default_cfg(void);
+void bsp_vcnl3682_read(uint16_t *pu16Val);
 #endif /* _BSP_VCNL3682_H_ */
 /**
   * @}
