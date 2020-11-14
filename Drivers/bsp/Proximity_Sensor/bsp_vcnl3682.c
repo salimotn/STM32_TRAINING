@@ -46,7 +46,7 @@
 /** @defgroup vcnl3682 Private defines
   * @{
   */
-#define VCNL3682_SLAVE_ADDR   0x60  /**<  7-bit addressing                                     */
+#define VCNL3682_SLAVE_ADDR   (0x60 << 1)  /**<  7-bit addressing                              */
 #define PS_CONF1_CMD          0x00  /**< Standby and on / off                                  */
 #define PS_CONF2_CMD          0x03  /**< PS period, persistence, interrupt and PS start / stop */
 #define PS_CONF3_CMD          0x04  /**< PS mode and  LED current                              */
@@ -94,20 +94,18 @@
   */
 static void _bsp_vcnl3682_write_reg(uint8_t u08Cmd ,uint16_t u16RegData)
 {
-  uint8_t u08CmdData[3];
+  uint8_t u08CmdData[2];
 
-  u08CmdData[0] = u08Cmd;
-  u08CmdData[1] = u16RegData & 0xFF;
-  u08CmdData[2] = (u16RegData >> 8) & 0xFF;
-  bsp_i2c_write(VCNL3682_SLAVE_ADDR, u08CmdData, sizeof(u08CmdData));
+  u08CmdData[0] = u16RegData & 0xFF;
+  u08CmdData[1] = (u16RegData >> 8) & 0xFF;
+  bsp_i2c_write_to_mem(VCNL3682_SLAVE_ADDR, u08Cmd, 1, u08CmdData,sizeof(u08CmdData));
 }
 
 static uint16_t _bsp_vcnl3682_read_reg(uint8_t u08Cmd)
 {
   uint8_t u08ReadData[2];
 
-  bsp_i2c_write(VCNL3682_SLAVE_ADDR, &u08Cmd, 1);
-  bsp_i2c_read(VCNL3682_SLAVE_ADDR, u08ReadData, sizeof(u08ReadData));
+  bsp_i2c_read_mem(VCNL3682_SLAVE_ADDR,u08Cmd,1,u08ReadData, sizeof(u08ReadData));
   return (u08ReadData[0] | (u08ReadData[1] << 8));
 }
 

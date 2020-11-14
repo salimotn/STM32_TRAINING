@@ -24,6 +24,7 @@
 #include "bsp_gprs.h"
 #include "bsp_i2c.h"
 #include <stdio.h>
+#include "bsp_vcnl3682.h"
 
 /* Private includes ----------------------------------------------------------*/
 
@@ -53,6 +54,7 @@ uint32_t u32Counter;
 mw_data_t stMyData;
 uint8_t t08ucmd[40];
 uint8_t CmdLen;
+uint8_t result;
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
@@ -86,6 +88,9 @@ int main(void)
   bsp_timer_start();
   /* Init Ic2 driver */
   bsp_i2c_init();
+  /* Check proximity sensor */
+  result = bsp_vcnl3682_check_id();
+
   /* Enable Gprs */
   // bsp_gprs_enable();
   /* Connect to Url */
