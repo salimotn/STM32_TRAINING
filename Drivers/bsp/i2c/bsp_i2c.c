@@ -45,7 +45,8 @@
 /** @defgroup i2c_private_defines Private defines
   * @{
   */
-#define BSP_I2C_INSTANCE I2C3
+#define BSP_I2C_INSTANCE             I2C3
+#define BSP_I2C_TIMEOUT              10000
 /**
   * @}
   */
@@ -98,7 +99,7 @@ I2C_HandleTypeDef stI2cInstance;
 void bsp_i2c_init(void)
 {
   stI2cInstance.Instance = BSP_I2C_INSTANCE;
-  stI2cInstance.Init.Timing = 0x00000E14;
+  stI2cInstance.Init.Timing = 0x00505B89;
   stI2cInstance.Init.OwnAddress1 = 0;
   stI2cInstance.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   stI2cInstance.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -136,7 +137,7 @@ void bsp_i2c_write(uint16_t u16DevAddr, uint8_t *pu08Data, uint16_t u16Len)
 {
   if(pu08Data && u16Len)
   {
-    HAL_I2C_Master_Transmit_IT(&stI2cInstance, u16DevAddr, pu08Data, u16Len);
+    HAL_I2C_Master_Transmit(&stI2cInstance, u16DevAddr, pu08Data, u16Len, BSP_I2C_TIMEOUT);
   }
 }
 
@@ -153,7 +154,7 @@ void bsp_i2c_read(uint16_t u16DevAddr, uint8_t *pu08Data, uint16_t u16Len)
 {
   if(pu08Data && u16Len)
   {
-    HAL_I2C_Master_Receive_IT(&stI2cInstance, u16DevAddr, pu08Data, u16Len);
+    HAL_I2C_Master_Receive(&stI2cInstance, u16DevAddr, pu08Data, u16Len, BSP_I2C_TIMEOUT);
   }
 }
 
@@ -174,7 +175,13 @@ void bsp_i2c_read(uint16_t u16DevAddr, uint8_t *pu08Data, uint16_t u16Len)
 {
   if(u16MemAddrSize && pu08Data && u16Len)
   {
-    HAL_I2C_Mem_Write_IT(&stI2cInstance, u16DevAddr, u16MemAddr, u16MemAddrSize,pu08Data, u16Len);
+    HAL_I2C_Mem_Write(&stI2cInstance,
+                      u16DevAddr,
+                      u16MemAddr,
+                      u16MemAddrSize,
+                      pu08Data,
+                      u16Len,
+                      BSP_I2C_TIMEOUT);
   }
 }
 
@@ -197,7 +204,13 @@ void bsp_i2c_read_mem(uint16_t u16DevAddr,
 {
   if(u16MemAddrSize && pu08Data && u16Len)
   {
-    HAL_I2C_Mem_Read_IT(&stI2cInstance, u16DevAddr, u16MemAddr, u16MemAddrSize ,pu08Data, u16Len);
+    HAL_I2C_Mem_Read(&stI2cInstance,
+                     u16DevAddr,
+                     u16MemAddr,
+                     u16MemAddrSize,
+                     pu08Data,
+                     u16Len,
+                     BSP_I2C_TIMEOUT);
   }
 }
 /**
