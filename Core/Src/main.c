@@ -22,10 +22,22 @@
 #include "bsp_timer.h"
 #include "bsp_uart.h"
 #include "bsp_gprs.h"
+#include "bsp_i2c.h"
+#include <stdio.h>
 
 /* Private includes ----------------------------------------------------------*/
 
 /* Private typedef -----------------------------------------------------------*/
+typedef struct
+{
+  uint8_t u08Hv;
+  uint8_t u08Fv;
+  uint8_t u08DutyCycle;
+  uint8_t u08PayloadType;
+  uint8_t u08ErrFlag;
+  uint8_t u08MsgType;
+  uint16_t u16MsgBuffer;
+}mw_data_t;
 
 /* Private define ------------------------------------------------------------*/
 #define APP_URL         "http://iot.pestpulse.com/api/device_messages"
@@ -33,12 +45,21 @@
 // #define APP_DATA        "\x04\x01\x1803030003FF,DEV_SALEM_TEST"
 
 #define APP_DATA_SIZE   sizeof(APP_DATA)-1
+#define DEVICE          "DEV_SALEM_TEST"
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
 uint32_t u32Counter;
+mw_data_t stMyData;
+uint8_t t08ucmd[40];
+uint8_t CmdLen;
+
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
+void mw_data_format(mw_data_t *pstData,
+                    uint8_t *pu08DeviceName,
+                    uint8_t *pu08Dest,
+                    uint8_t *pu08CmdLen);
 /* Private user code ---------------------------------------------------------*/
 
 /**
@@ -63,12 +84,22 @@ int main(void)
   bsp_uart_init();
   /* Start timer */
   bsp_timer_start();
+  /* Init Ic2 driver */
+  bsp_i2c_init();
   /* Enable Gprs */
-  bsp_gprs_enable();
+  // bsp_gprs_enable();
   /* Connect to Url */
-  bsp_gprs_connect(APP_URL);
+  // bsp_gprs_connect(APP_URL);
   /* Send data through GPRS */
-  bsp_gprs_send(APP_DATA, APP_DATA_SIZE);
+  // stMyData.u08Hv          = 04;
+  // stMyData.u08Fv          = 01;
+  // stMyData.u08DutyCycle   = 18;
+  // stMyData.u08PayloadType = 03;
+  // stMyData.u08ErrFlag     = 03;
+  // stMyData.u08MsgType     = 00;
+  // stMyData.u16MsgBuffer   = 0x03FF;
+  // mw_data_format(&stMyData, (uint8_t*)DEVICE, t08ucmd, &CmdLen);
+  // bsp_gprs_send(t08ucmd, CmdLen);
   /* Infinite loop */
   while (1)
   {
@@ -206,4 +237,27 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   bsp_led_toggle(BSP_LED_ID_1);
 }
 
+void mw_data_format(mw_data_t *pstData,
+                    uint8_t *pu08DeviceName,
+                    uint8_t *pu08Dest,
+                    uint8_t *pu08CmdLen)
+{
+  uint8_t u08Len;
+  if(pstData && pu08DeviceName && pu08Dest && pu08CmdLen)
+  {
+    u08Len = snprintf((char*)pu08Dest,
+                      40,
+                      "%02d%02d%02d%02d%02d%02d%02X%02X,%s",
+                      pstData->u08Hv,
+                      pstData->u08Fv,
+                      pstData->u08DutyCycle,
+                      pstData->u08PayloadType,
+                      pstData->u08ErrFlag,
+                      pstData->u08MsgType,
+                      ((pstData->u16MsgBuffer >> 8)& 0xFF), /* Extract MSB */
+                      (pstData->u16MsgBuffer & 0xFF),       /* Extract LSB */
+                      pu08DeviceName);
+    *pu08CmdLen = u08Len;
+  }
+}
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -35,6 +35,7 @@
 
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim2;
+extern I2C_HandleTypeDef stI2cInstance;
 /******************************************************************************/
 /*           Cortex-M4 Processor Interruption and Exception Handlers          */
 /******************************************************************************/
@@ -136,5 +137,21 @@ void EXTI15_10_IRQHandler(void)
 void TIM2_IRQHandler(void)
 {
   HAL_TIM_IRQHandler(&htim2);
+}
+
+/**
+  * @brief This function handles I2C3 event interrupt.
+  */
+void I2C3_EV_IRQHandler(void)
+{
+  HAL_I2C_EV_IRQHandler(&stI2cInstance);
+}
+
+/**
+  * @brief This function handles I2C3 error interrupt.
+  */
+void I2C3_ER_IRQHandler(void)
+{
+  HAL_I2C_ER_IRQHandler(&stI2cInstance);
 }
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

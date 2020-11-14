@@ -79,13 +79,21 @@ typedef struct
   */
 static const bps_gprs_atcmd_t tstEnableAtCmds[] =
 {
+  /* Start AT SYNC: Send AT every 500ms, if receive OK (Handshaking) */
   {"AT\r"                            , BSP_GPRS_CMD_DELAY},
+  /* Set Echo mode off */
   {"ATE0\r"                          , BSP_GPRS_CMD_DELAY},
+  /* Select a Context as Foreground Context,Expected to have id=0,channel=0 */
   {"AT+QIFGCNT=0\r"                  , BSP_GPRS_CMD_DELAY},
+  /* Configure Domain Name Server */
   {"AT+QIDNSCFG?\r"                  , BSP_GPRS_CMD_DELAY},
+  /* Select CSD or GPRS as the Bearer ( APN )*/
   {"AT+QICSGP=1,\"PESTPULSE.LPWA\"\r", BSP_GPRS_CMD_DELAY},
+  /* Start TCP/IP stack */
   {"AT+QIREGAPP=\"PESTPULSE.LPWA\"\r", BSP_GPRS_CMD_DELAY},
+  /* Disactivate PDP context */
   {"AT+QIDEACT\n"                    , BSP_GPRS_CMD_DELAY},
+  /* Get Network status */
   {"AT+CREG?\n"                      , BSP_GPRS_CMD_DELAY},
   /* Set all Current Parameters to User Defined Profile */
   {"ATZ\r"                           , BSP_GPRS_CMD_DELAY},
@@ -111,14 +119,14 @@ static const bps_gprs_atcmd_t tstEnableAtCmds[] =
 void _bsp_gprs_send_atcmd(const char * pAtCmd, uint32_t u32TimeoutMs)
 {
   uint16_t u16CmdLen;
-  uint16_t u16ReplyLen;
+  // uint16_t u16ReplyLen;
 
   if(pAtCmd)
   {
     u16CmdLen = strlen(pAtCmd);
     bsp_uart_transmit((uint8_t*)pAtCmd, u16CmdLen);
     HAL_Delay(u32TimeoutMs);
-    u16ReplyLen = bsp_uart_reset_indexes();
+    //  u16ReplyLen = bsp_uart_reset_indexes();
   }
 }
 /**
@@ -173,7 +181,7 @@ void bsp_gprs_connect(char *pcUrl)
   uint16_t u16UrlLen;
   uint8_t u08CmdLen;
   char u08AtCmd[BSP_GPRS_URL_MAX];
-  uint16_t u16ReplyLen;
+  // uint16_t u16ReplyLen;
 
   if(pcUrl)
   {
@@ -183,11 +191,11 @@ void bsp_gprs_connect(char *pcUrl)
     /* 2- send QHTTPURL command */
     bsp_uart_transmit((uint8_t*)u08AtCmd, (uint16_t)u08CmdLen);
     HAL_Delay(BSP_GPRS_CMD_DELAY);
-    u16ReplyLen = bsp_uart_reset_indexes();
+    // u16ReplyLen = bsp_uart_reset_indexes();
     /* 3- Send Url to connet */
     bsp_uart_transmit((uint8_t*)pcUrl, u16UrlLen);
     HAL_Delay(BSP_GPRS_CMD_DELAY);
-    u16ReplyLen = bsp_uart_reset_indexes();
+    // u16ReplyLen = bsp_uart_reset_indexes();
   }
 }
 
@@ -202,7 +210,7 @@ void bsp_gprs_send(uint8_t *pu08Data, uint16_t u16DataLen)
 {
   uint8_t u08CmdLen;
   char u08AtCmd[BSP_GPRS_URL_MAX];
-  uint16_t u16ReplyLen;
+  // uint16_t u16ReplyLen;
 
   if(pu08Data && u16DataLen)
   {
@@ -210,12 +218,17 @@ void bsp_gprs_send(uint8_t *pu08Data, uint16_t u16DataLen)
     u08CmdLen = snprintf(u08AtCmd, BSP_GPRS_URL_MAX, "AT+QHTTPPOST=%d\r", u16DataLen);
     /* 2- send QHTTPURL command */
     bsp_uart_transmit((uint8_t*)u08AtCmd, (uint16_t)u08CmdLen);
+<<<<<<< HEAD
     HAL_Delay(BSP_GPRS_CMD_DELAY+4000);
     u16ReplyLen = bsp_uart_reset_indexes();
+=======
+    HAL_Delay(BSP_GPRS_CMD_DELAY);
+    // u16ReplyLen = bsp_uart_reset_indexes();
+>>>>>>> d4be9da0594b49ccc92dea8b8189bcd3965fc9b3
     /* 3- Send Url to connet */
     bsp_uart_transmit((uint8_t*)pu08Data, u16DataLen);
     HAL_Delay(BSP_GPRS_CMD_DELAY);
-    u16ReplyLen = bsp_uart_reset_indexes();
+    // u16ReplyLen = bsp_uart_reset_indexes();
   }
 }
 
