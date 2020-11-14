@@ -30,6 +30,8 @@
 /* Private define ------------------------------------------------------------*/
 #define APP_URL         "http://iot.pestpulse.com/api/device_messages"
 #define APP_DATA        "04011803030003FF,DEV_SALEM_TEST"
+// #define APP_DATA        "\x04\x01\x1803030003FF,DEV_SALEM_TEST"
+
 #define APP_DATA_SIZE   sizeof(APP_DATA)-1
 /* Private macro -------------------------------------------------------------*/
 

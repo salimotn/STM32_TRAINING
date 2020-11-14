@@ -210,7 +210,7 @@ void bsp_gprs_send(uint8_t *pu08Data, uint16_t u16DataLen)
     u08CmdLen = snprintf(u08AtCmd, BSP_GPRS_URL_MAX, "AT+QHTTPPOST=%d\r", u16DataLen);
     /* 2- send QHTTPURL command */
     bsp_uart_transmit((uint8_t*)u08AtCmd, (uint16_t)u08CmdLen);
-    HAL_Delay(BSP_GPRS_CMD_DELAY);
+    HAL_Delay(BSP_GPRS_CMD_DELAY+4000);
     u16ReplyLen = bsp_uart_reset_indexes();
     /* 3- Send Url to connet */
     bsp_uart_transmit((uint8_t*)pu08Data, u16DataLen);
